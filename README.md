@@ -21,6 +21,12 @@ Damos valor a las siguientes variables de entorno:
 ```
 $DOCKERHUB_USERNAME="chubi0l"
 $DOCKERHUB_READ_TOKEN="..."
+$DOCKERHUB_TOKEN="..."
+$AZURE_CLIENT_ID="..."
+$AZURE_SUBSCRIPTION_ID="..."
+$AZURE_CLIENT_ID="..."
+$AZURE_TENANT_ID="..."
+$AZURE_RESOURCE_GROUP="posts-group"
 ```
 
 Creamos nuestra aplicación lanzando un contenedor a partir de la imagen `maes95/posts:v1`. Le pondremos a la aplicación el nombre `urjc-posts`
