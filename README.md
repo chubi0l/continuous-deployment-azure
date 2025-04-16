@@ -6,10 +6,12 @@ Este proyecto consta de un servidor WEB sencillo para la gestión de posts (anun
 
 En primer lugar, nos logueamos en el cliente de Azure (el login se realizará con ayuda del navegador) 
 ```
+az account clear
+az config set core.enable_broker_on_windows=false
 az login
 ```
 
-Creamos un grupo de recursos `posts-group`
+Creamos un grupo de recursos `posts-group` --> yo ya lo tenía creado en spaincentral asi que no hace falta
 ```
 az group create --name posts-group --location westeurope
 ```
@@ -17,35 +19,35 @@ az group create --name posts-group --location westeurope
 Damos valor a las siguientes variables de entorno:
 
 ```
-DOCKERHUB_USERNAME=
-DOCKERHUB_READ_TOKEN=
+$DOCKERHUB_USERNAME="chubi0l"
+$DOCKERHUB_READ_TOKEN="..."
 ```
 
 Creamos nuestra aplicación lanzando un contenedor a partir de la imagen `maes95/posts:v1`. Le pondremos a la aplicación el nombre `urjc-posts`
 
 ```
-az container create \
-    --resource-group posts-group \
-    --name posts-michel \
-    --image maes95/posts:v1 \
-    --registry-login-server index.docker.io \
-    --registry-username $DOCKERHUB_USERNAME \
-    --registry-password $DOCKERHUB_READ_TOKEN \
-    --dns-name-label posts-michel \
-    --ports 8080 \
-    --os-type Linux \
-    --cpu 1 \
-    --memory 1
+az container create `
+>>     --resource-group posts-group `
+>>     --name posts-michel `
+>>     --image maes95/posts:v1 `
+>>     --registry-login-server index.docker.io `
+>>     --registry-username $DOCKERHUB_USERNAME `
+>>     --registry-password $DOCKERHUB_READ_TOKEN `
+>>     --dns-name-label posts-michel `
+>>     --ports 8080 `
+>>     --os-type Linux `
+>>     --cpu 1 `
+>>     --memory 1
 ```
 
 La URL dónde podremos acceder a la aplicación será: posts-michel.spaincentral.azurecontainer.io
 
 Podemos ver el estado de nuestra aplicación con el siguiente comando
 ```
-az container show  \
-    --resource-group posts-group \
-    --name posts-michel \
-    --query "{FQDN:ipAddress.fqdn,ProvisioningState:provisioningState}" \
+az container show  `
+    --resource-group posts-group `
+    --name posts-michel `
+    --query "{FQDN:ipAddress.fqdn,ProvisioningState:provisioningState}" `
     --out table
 ```
 
