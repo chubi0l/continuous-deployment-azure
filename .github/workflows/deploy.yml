@@ -39,6 +39,13 @@ jobs:
       - name: Tag image as latest
         run: docker tag ${{ secrets.DOCKERHUB_USERNAME }}/posts:${{ steps.extract_version.outputs.VERSION }} ${{ secrets.DOCKERHUB_USERNAME }}/posts:latest
 
+      - name: Extract version from pom.xml
+        id: get-version
+        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      - name: Generate Docker image
+        run: mvn spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=${{ secrets.DOCKERHUB_USERNAME }}/posts:${{ env.VERSION }}
+
       - name: Login to DockerHub
         run: docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
 
@@ -46,7 +53,7 @@ jobs:
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/posts:${{ steps.extract_version.outputs.VERSION }}
 
       - name: Push latest image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/posts:latest
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/posts:${{ env.VERSION }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -63,12 +70,12 @@ jobs:
         id: extract_version
         run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
-      - name: Deploy container to Azure
+      - name: 'Deploy container to Azure'
         run: |
           az container create \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name posts \
-            --image ${{ secrets.DOCKERHUB_USERNAME }}/posts:$VERSION \
+            --image ${{ secrets.DOCKERHUB_USERNAME }}/posts:${{ env.VERSION }} \
             --registry-login-server index.docker.io \
             --registry-username ${{ secrets.DOCKERHUB_USERNAME }} \
             --registry-password ${{ secrets.DOCKERHUB_READ_TOKEN }} \
@@ -77,3 +84,4 @@ jobs:
             --os-type Linux \
             --cpu 1 \
             --memory 1.5
+
